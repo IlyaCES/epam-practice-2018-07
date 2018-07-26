@@ -2,6 +2,8 @@ package com.epam.compiler;
 
 import com.epam.compiler.Token.Type;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ public class Compiler {
 
   private static String fileName;
   private static boolean optimization;
+  private static boolean createClassFile;
 
   public static void main(String[] args) {
     HelpFormatter formatter = new HelpFormatter();
@@ -32,6 +35,10 @@ public class Compiler {
       if (commandLine.hasOption("o")) {
         optimization = true;
       }
+
+      if (commandLine.hasOption("c")) {
+        createClassFile = true;
+      }
     } catch (ParseException e) {
       System.out.println("Source file is required");
       formatter.printHelp("Compiler", getOptions());
@@ -45,6 +52,15 @@ public class Compiler {
     }
 
     byte[] byteCode = ByteCodeGenerator.createByteCode(tokens);
+
+    if (createClassFile) {
+      try (FileOutputStream output = new FileOutputStream(
+          new File("TestClass.class"))) {
+        output.write(byteCode);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
 
     Class<?> myClassLoaded =
         new ClassLoader() {
@@ -79,11 +95,17 @@ public class Compiler {
         .desc("show help")
         .longOpt("help")
         .build();
+    Option createOption = Option.builder("c")
+        .hasArg(false)
+        .desc("create class file")
+        .longOpt("create")
+        .build();
 
     Options options = new Options();
     options.addOption(sourceOption);
     options.addOption(optimizeOption);
     options.addOption(helpOption);
+    options.addOption(createOption);
     return options;
   }
 

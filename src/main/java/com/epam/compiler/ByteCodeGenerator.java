@@ -125,7 +125,30 @@ class ByteCodeGenerator {
   }
 
   private static void shift(int val) {
+
     runInsn.add(new IincInsnNode(2, val));
+
+    LabelNode end = new LabelNode();
+    LabelNode greater = new LabelNode();
+    runInsn.add(new VarInsnNode(ILOAD, 2));
+    runInsn.add(new LdcInsnNode(29999));
+    runInsn.add(new JumpInsnNode(IF_ICMPLE, greater));
+    runInsn.add(new VarInsnNode(ILOAD, 2));
+    runInsn.add(new LdcInsnNode(-30000));
+    runInsn.add(new InsnNode(IADD));
+    runInsn.add(new VarInsnNode(ISTORE, 2));
+    runInsn.add(new JumpInsnNode(GOTO, end));
+
+    runInsn.add(greater);
+    runInsn.add(new VarInsnNode(ILOAD, 2));
+    runInsn.add(new InsnNode(ICONST_0));
+    runInsn.add(new JumpInsnNode(IF_ICMPGE, end));
+    runInsn.add(new VarInsnNode(ILOAD, 2));
+    runInsn.add(new LdcInsnNode(30000));
+    runInsn.add(new InsnNode(IADD));
+    runInsn.add(new VarInsnNode(ISTORE, 2));
+    runInsn.add(end);
+
   }
 
   private static void changeValue(int val) {
